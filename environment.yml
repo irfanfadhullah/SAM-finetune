@@ -1,4 +1,4 @@
-name: hg_proj
+name: sam_sam
 channels:
   - pytorch
   - nvidia

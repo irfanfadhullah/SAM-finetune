@@ -68,7 +68,7 @@ def model_basic(args,rank, world_size,trainloader,valloader,dir_checkpoint):
     
     print(f"Running basic DDP example on rank {rank}.")
     # create model and move it to GPU with id rank
-    model = sam_model_registry["vit_b"](args,checkpoint=os.path.join("sam_vit_b_01ec64.pth"),num_classes=2)
+    model = sam_model_registry[args.arch](args,checkpoint=os.path.join(args.sam_ckpt),num_classes=args.num_cls)
     #print(model)
 
     if args.finetune_type == 'adapter':
@@ -81,8 +81,10 @@ def model_basic(args,rank, world_size,trainloader,valloader,dir_checkpoint):
     elif args.finetune_type == 'lora':
         model = LoRA_Sam(args,model,r=4).sam
         
-    
-    ddp_model = DDP(model)
+    device = torch.device(f'cuda:{dev0}')
+    model.to(device)
+    ddp_model = DDP(model, device_ids=[dev0])
+    # ddp_model = DDP(model)
     
     optimizer = optim.AdamW(ddp_model.parameters(), lr=b_lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0.1, amsgrad=False)
     optimizer.zero_grad()
@@ -201,8 +203,8 @@ def run_demo(demo_fn, size, model_basic,trainloader,valloader,dir_checkpoint):
 if __name__ == "__main__":
     dataset_name = args.dataset_name
     print('train dataset: {}'.format(dataset_name)) 
-    train_img_list = args.img_folder + dataset_name + '/train_5shot.csv'
-    val_img_list = args.img_folder + dataset_name + '/val_5shot.csv'
+    train_img_list = args.train_img_list
+    val_img_list = args.val_img_list
 
     num_workers = 0
     if_vis = True
@@ -213,8 +215,8 @@ if __name__ == "__main__":
 
 
 
-    train_dataset = Public_dataset(args,args.img_folder, args.mask_folder, train_img_list,phase='train',targets=['all'],normalize_type='sam',if_prompt=False)
-    eval_dataset = Public_dataset(args,args.img_folder, args.mask_folder, val_img_list,phase='val',targets=['all'],normalize_type='sam',if_prompt=False)
+    train_dataset = Public_dataset(args,args.img_folder, args.mask_folder, train_img_list,phase='train',targets=[args.targets],normalize_type='sam',if_prompt=False)
+    eval_dataset = Public_dataset(args,args.img_folder, args.mask_folder, val_img_list,phase='val',targets=[args.targets],normalize_type='sam',if_prompt=False)
     trainloader = DataLoader(train_dataset, batch_size=args.b, shuffle=True, num_workers=num_workers)
     valloader = DataLoader(eval_dataset, batch_size=args.b, shuffle=False, num_workers=num_workers)
 
