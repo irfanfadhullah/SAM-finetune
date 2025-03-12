@@ -180,14 +180,14 @@ def _build_sam(
     checkpoint = Path(checkpoint)
     if checkpoint.name == "sam_vit_b_01ec64.pth" and not checkpoint.exists():
         cmd = input("Download sam_vit_b_01ec64.pth from facebook AI? [y]/n: ")
-        if len(cmd) == 0 or cmd.lower() == 'y':
-            checkpoint.parent.mkdir(parents=True, exist_ok=True)
-            print("Downloading SAM ViT-B checkpoint...")
-            urllib.request.urlretrieve(
-                "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth",
-                checkpoint,
-            )
-            print(checkpoint.name, " is downloaded!")
+        # if len(cmd) == 0 or cmd.lower() == 'y':
+        checkpoint.parent.mkdir(parents=True, exist_ok=True)
+        print("Downloading SAM ViT-B checkpoint...")
+        urllib.request.urlretrieve(
+            "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth",
+            checkpoint,
+        )
+        print(checkpoint.name, " is downloaded!")
     elif checkpoint.name == "sam_vit_h_4b8939.pth" and not checkpoint.exists():
         cmd = input("Download sam_vit_h_4b8939.pth from facebook AI? [y]/n: ")
         if len(cmd) == 0 or cmd.lower() == 'y':
