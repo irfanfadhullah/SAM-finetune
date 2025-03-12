@@ -75,10 +75,12 @@ class Public_dataset(Dataset):
             lines = file.read().strip().split('\n')
         for line in lines:
             img_path, mask_path = line.split(',')
+            # print(img_path, mask_path)
             mask_path = mask_path.strip()
             if mask_path.startswith('/'):
-                mask_path = mask_path[1:]
-            msk = Image.open(os.path.join(self.mask_folder, mask_path)).convert('L')
+                mask_path = mask_path
+            # print(mask_path)
+            msk = Image.open(mask_path).convert('L')
             if self.should_keep(msk, mask_path):
                 self.data_list.append(line)
 
@@ -131,9 +133,12 @@ class Public_dataset(Dataset):
         data = self.data_list[index]
         img_path, mask_path = data.split(',')
         if mask_path.startswith('/'):
-            mask_path = mask_path[1:]
-        img = Image.open(os.path.join(self.img_folder, img_path.strip())).convert('RGB')
-        msk = Image.open(os.path.join(self.mask_folder, mask_path.strip())).convert('L')
+            mask_path = mask_path
+        # img = Image.open(os.path.join(self.img_folder, img_path.strip())).convert('RGB')
+        # msk = Image.open(os.path.join(self.mask_folder, mask_path.strip())).convert('L')
+
+        img = Image.open(img_path.strip()).convert('RGB')
+        msk = Image.open(mask_path.strip()).convert('L')
 
         img = transforms.Resize((self.args.image_size,self.args.image_size))(img)
         msk = transforms.Resize((self.args.image_size,self.args.image_size),InterpolationMode.NEAREST)(msk)
